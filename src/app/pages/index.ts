@@ -1,0 +1,12 @@
+export { Home } from './Home';
+export { Services } from './Services';
+export { About } from './About';
+export { Contact } from './Contact';
+export { Login } from './Login';
+export { Signup } from './Signup';
+export { ForgotPassword } from './ForgotPassword';
+export { AdminDashboard } from './AdminDashboard';
+export { AdminClientDocuments } from './AdminClientDocuments';
+export { AdminSiteSettings } from './AdminSiteSettings';
+export { ClientDashboard } from './ClientDashboard';
+export { NotFound } from './NotFound';

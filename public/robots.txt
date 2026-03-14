@@ -1,0 +1,13 @@
+# Allow all search engines to crawl the site
+User-agent: *
+Allow: /
+
+# Disallow crawling of admin and client portal pages
+Disallow: /admin
+Disallow: /client
+Disallow: /login
+Disallow: /signup
+Disallow: /forgot-password
+
+# Sitemap location
+Sitemap: https://www.apsaraassociates.com/sitemap.xml

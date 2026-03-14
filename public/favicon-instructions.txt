@@ -1,0 +1,40 @@
+FAVICON SETUP INSTRUCTIONS
+===========================
+
+To add a favicon to your website:
+
+OPTION 1: Simple Favicon (Recommended for beginners)
+-----------------------------------------------------
+1. Create or obtain a square logo/icon (512x512px recommended)
+2. Convert it to .ico format using: https://favicon.io/favicon-converter/
+3. Download the generated favicon files
+4. Copy these files to the /public folder:
+   - favicon.ico
+   - favicon-16x16.png
+   - favicon-32x32.png
+   - apple-touch-icon.png (180x180px)
+
+OPTION 2: Use CA Logo as Favicon
+---------------------------------
+If you want to use your existing CA_LOGO.svg as favicon:
+
+1. Export CA_LOGO.svg as PNG (512x512px) using any image editor
+2. Go to https://favicon.io/favicon-converter/
+3. Upload the PNG file
+4. Download the generated favicon package
+5. Copy the required files to /public folder:
+   - favicon.ico
+   - favicon-16x16.png
+   - favicon-32x32.png
+   - apple-touch-icon.png
+
+After copying files, your favicon will automatically work!
+No code changes needed - Vite handles this automatically.
+
+IMPORTANT: 
+- All favicon files should be placed directly in /public folder
+- DO NOT create subfolders inside /public for favicons
+- The files will be accessible at: yourdomain.com/favicon.ico
+
+Test your favicon after deployment at:
+https://realfavicongenerator.net/favicon_checker
