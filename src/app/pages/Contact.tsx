@@ -58,42 +58,44 @@ export function Contact() {
       try {
         const adminEmail = import.meta.env.VITE_ADMIN_EMAIL || 'apsara@apsaraassociates.com';
         const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+        const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
         console.log("📧 Calling Edge Function to send email to:", adminEmail);
 
-        if (!supabaseUrl) {
-          console.warn('⚠️ VITE_SUPABASE_URL not found');
-          toast.warning('Email notification disabled (missing configuration)');
+        if (!supabaseUrl || !supabaseAnonKey) {
+          console.error('❌ Missing Supabase environment variables');
+          toast.error('Email configuration error. Please contact administrator.');
+          throw new Error('Missing Supabase configuration');
+        }
+
+        const edgeFunctionUrl = `${supabaseUrl}/functions/v1/send-contact-email`;
+        
+        console.log("🔗 Edge Function URL:", edgeFunctionUrl);
+
+        const emailResponse = await fetch(edgeFunctionUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${supabaseAnonKey}`
+          },
+          body: JSON.stringify({
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone,
+            service: formData.service,
+            message: formData.message,
+            adminEmail: adminEmail
+          })
+        });
+
+        const emailResult = await emailResponse.json();
+        
+        if (!emailResponse.ok) {
+          console.error('❌ Email sending failed:', emailResult);
+          toast.error(`Email not sent: ${emailResult.error || 'Unknown error'}`);
         } else {
-          const edgeFunctionUrl = `${supabaseUrl}/functions/v1/send-contact-email`;
-          
-          console.log("🔗 Edge Function URL:", edgeFunctionUrl);
-
-          const emailResponse = await fetch(edgeFunctionUrl, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`
-            },
-            body: JSON.stringify({
-              name: formData.name,
-              email: formData.email,
-              phone: formData.phone,
-              service: formData.service,
-              message: formData.message,
-              adminEmail: adminEmail
-            })
-          });
-
-          const emailResult = await emailResponse.json();
-          
-          if (!emailResponse.ok) {
-            console.error('❌ Email sending failed:', emailResult);
-            toast.error(`Email not sent: ${emailResult.error || 'Unknown error'}`);
-          } else {
-            console.log('✅ Email sent successfully:', emailResult);
-            toast.success('Email notification sent!');
-          }
+          console.log('✅ Email sent successfully:', emailResult);
+          toast.success('Email notification sent!');
         }
       } catch (emailError: any) {
         console.error('❌ Error sending email:', emailError);
