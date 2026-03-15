@@ -5,15 +5,15 @@ export function Footer() {
   return (
     <footer className="bg-gray-900 text-gray-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr_1.5fr] gap-8 mb-8">
           {/* About Section */}
           <div>
-            <div className="mb-4">
-              <span className="text-lg font-bold text-white">
+            <div className="mb-4 inline-block">
+              <span className="text-lg font-bold text-white block">
                 Apsara & Associates
               </span>
-              <div className="w-full h-px bg-gray-600 my-0.5"></div>
-              <span className="text-[10px] text-gray-300 uppercase" style={{ letterSpacing: '0.15em' }}>
+              <div className="h-px bg-gray-600 my-0.5"></div>
+              <span className="text-[10px] text-gray-300 uppercase block" style={{ letterSpacing: '0.15em' }}>
                 Chartered Accountants
               </span>
             </div>
@@ -23,7 +23,7 @@ export function Footer() {
           </div>
 
           {/* Quick Links */}
-          <div>
+          <div className="md:pl-8">
             <h3 className="text-white font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2">
               <li>
