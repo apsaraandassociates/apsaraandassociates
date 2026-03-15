@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
-import { Lock, Mail, Eye, EyeOff } from "lucide-react";
+import { Lock, Mail, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
@@ -13,6 +13,7 @@ export function Login() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -21,6 +22,7 @@ export function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
     
     try {
       // Sign in with Supabase
@@ -29,20 +31,17 @@ export function Login() {
         password: formData.password,
       });
 
-      if (error) throw error;
+      if (error) {
+        // Better error messages
+        if (error.message.includes("Invalid login credentials")) {
+          setError("Invalid email or password. Please try again.");
+        } else {
+          setError(error.message);
+        }
+        throw error;
+      }
 
       if (data.user) {
-        // Check if email is verified
-        if (!data.user.email_confirmed_at) {
-          await supabase.auth.signOut();
-          toast.error(
-            "Please verify your email before logging in. Check your inbox for the verification link.",
-            { duration: 5000 }
-          );
-          setLoading(false);
-          return;
-        }
-
         // Get user profile to check role
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
@@ -50,7 +49,10 @@ export function Login() {
           .eq("id", data.user.id)
           .single();
 
-        if (profileError) throw profileError;
+        if (profileError) {
+          setError("Failed to load user profile. Please try again.");
+          throw profileError;
+        }
 
         // Redirect based on role
         if (profile?.role === "admin") {
@@ -63,7 +65,7 @@ export function Login() {
       }
     } catch (error: any) {
       console.error("Login error:", error);
-      toast.error(error.message || "Invalid credentials");
+      // Error already set above
     } finally {
       setLoading(false);
     }
@@ -74,6 +76,8 @@ export function Login() {
       ...formData,
       [e.target.name]: e.target.value,
     });
+    // Clear error when user starts typing
+    if (error) setError(null);
   };
 
   return (
@@ -90,6 +94,14 @@ export function Login() {
         </CardHeader>
         <CardContent className="pt-6">
           <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Error Message */}
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg flex items-start gap-3">
+                <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                <p className="text-sm">{error}</p>
+              </div>
+            )}
+
             <div>
               <Label htmlFor="email">Email Address</Label>
               <div className="relative mt-1">

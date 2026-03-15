@@ -7,6 +7,7 @@ import { Contact } from "./pages/Contact";
 import { Login } from "./pages/Login";
 import { Signup } from "./pages/Signup";
 import { ForgotPassword } from "./pages/ForgotPassword";
+import { ResetPassword } from "./pages/ResetPassword";
 import { AdminDashboard } from "./pages/AdminDashboard";
 import { AdminClientDocuments } from "./pages/AdminClientDocuments";
 import { AdminSiteSettings } from "./pages/AdminSiteSettings";
@@ -27,6 +28,7 @@ export const router = createBrowserRouter([
       { path: "signup", element: <Signup /> },
       { path: "register", element: <ClientRegister /> },
       { path: "forgot-password", element: <ForgotPassword /> },
+      { path: "reset-password", element: <ResetPassword /> },
       { path: "admin", element: <AdminDashboard /> },
       { path: "admin/client/:clientId", element: <AdminClientDocuments /> },
       { path: "admin/settings", element: <AdminSiteSettings /> },

@@ -152,13 +152,9 @@ export function ClientRegister() {
               <Check className="h-8 w-8 text-green-600" />
             </div>
             <CardTitle className="text-2xl text-green-600">Registration Successful!</CardTitle>
-            <CardDescription className="space-y-2 text-left mt-4">
-              <p className="font-medium text-center">📧 Please verify your email to continue</p>
-              <p className="text-sm">We've sent a verification link to <strong>{formData.email}</strong></p>
-              <p className="text-sm">Click the link in the email to verify your account before logging in.</p>
-              <p className="text-xs text-gray-500 mt-3">
-                💡 Tip: Check your spam folder if you don't see the email within a few minutes.
-              </p>
+            <CardDescription className="space-y-2 mt-4">
+              <p className="font-medium">Your account has been created successfully.</p>
+              <p className="text-sm">You can now log in to access your client portal.</p>
             </CardDescription>
           </CardHeader>
           <CardContent>

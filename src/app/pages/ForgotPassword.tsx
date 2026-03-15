@@ -1,67 +1,59 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
-import { Mail, CheckCircle, ArrowLeft, Lock } from "lucide-react";
+import { Mail, CheckCircle, ArrowLeft, AlertCircle } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import caLogo from "../../imports/CA_LOGO.svg";
+import { supabase } from "../../lib/supabase";
+import { toast } from "sonner";
 
 export function ForgotPassword() {
   const navigate = useNavigate();
-  const [step, setStep] = useState<"email" | "verify" | "reset" | "success">("email");
+  const [step, setStep] = useState<"email" | "success">("email");
   const [email, setEmail] = useState("");
-  const [otp, setOtp] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSendOTP = (e: React.FormEvent) => {
+  const handleSendResetLink = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // OTP will be sent via Supabase Edge Function
-    setTimeout(() => {
-      setLoading(false);
-      setStep("verify");
-    }, 1500);
-  };
+    setError(null);
 
-  const handleVerifyOTP = (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    // OTP verification via Supabase
-    setTimeout(() => {
-      setLoading(false);
-      if (otp.length === 6) {
-        setStep("reset");
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+
+      if (error) {
+        if (error.message.includes("rate limit")) {
+          setError("Too many requests. Please try again in a few minutes.");
+        } else if (error.message.includes("not found")) {
+          // Don't reveal if email exists for security
+          setStep("success");
+        } else {
+          setError(error.message);
+        }
+        throw error;
       }
-    }, 1000);
-  };
 
-  const handleResetPassword = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (password !== confirmPassword) {
-      alert("Passwords do not match");
-      return;
-    }
-
-    if (password.length < 8) {
-      alert("Password must be at least 8 characters");
-      return;
-    }
-
-    setLoading(true);
-    // Password reset via Supabase
-    setTimeout(() => {
-      setLoading(false);
       setStep("success");
-    }, 1000);
+      toast.success("Password reset link sent to your email");
+    } catch (error: any) {
+      console.error("Reset password error:", error);
+      // If it's not a critical error, still show success for security
+      if (!error.message.includes("rate limit")) {
+        setStep("success");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleResendOTP = () => {
-    // Resend OTP via Supabase
-    alert("OTP resent to your email");
+  const handleResend = () => {
+    setStep("email");
+    setError(null);
   };
 
   return (
@@ -73,20 +65,24 @@ export function ForgotPassword() {
           </div>
           <CardTitle className="text-2xl">
             {step === "email" && "Reset Password"}
-            {step === "verify" && "Verify Email"}
-            {step === "reset" && "Create New Password"}
-            {step === "success" && "Password Reset Successful"}
+            {step === "success" && "Check Your Email"}
           </CardTitle>
           <CardDescription>
-            {step === "email" && "Enter your email to receive an OTP"}
-            {step === "verify" && `Enter the OTP sent to ${email}`}
-            {step === "reset" && "Set a new password for your account"}
-            {step === "success" && "Your password has been reset successfully"}
+            {step === "email" && "Enter your email to receive a password reset link"}
+            {step === "success" && "We've sent you a password reset link"}
           </CardDescription>
         </CardHeader>
         <CardContent className="pt-6">
           {step === "email" && (
-            <form onSubmit={handleSendOTP} className="space-y-5">
+            <form onSubmit={handleSendResetLink} className="space-y-5">
+              {/* Error Message */}
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg flex items-start gap-3">
+                  <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                  <p className="text-sm">{error}</p>
+                </div>
+              )}
+
               <div>
                 <Label htmlFor="email">Email Address</Label>
                 <div className="relative mt-1">
@@ -97,11 +93,17 @@ export function ForgotPassword() {
                     type="email"
                     required
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      if (error) setError(null);
+                    }}
                     placeholder="your.email@example.com"
                     className="pl-10"
                   />
                 </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  Enter the email associated with your account
+                </p>
               </div>
 
               <Button
@@ -110,7 +112,7 @@ export function ForgotPassword() {
                 size="lg"
                 disabled={loading}
               >
-                {loading ? "Sending OTP..." : "Send OTP"}
+                {loading ? "Sending Link..." : "Send Reset Link"}
               </Button>
 
               <div className="text-center">
@@ -125,122 +127,47 @@ export function ForgotPassword() {
             </form>
           )}
 
-          {step === "verify" && (
-            <form onSubmit={handleVerifyOTP} className="space-y-5">
-              <div>
-                <Label htmlFor="otp">Enter OTP</Label>
-                <Input
-                  id="otp"
-                  type="text"
-                  required
-                  maxLength={6}
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
-                  placeholder="000000"
-                  className="text-center text-2xl tracking-widest"
-                />
-                <p className="text-xs text-gray-500 mt-2 text-center">
-                  Enter the 6-digit code sent to your email
-                </p>
-              </div>
-
-              <Button
-                type="submit"
-                className="w-full bg-[#0A70A1] hover:bg-[#085a85]"
-                size="lg"
-                disabled={loading || otp.length !== 6}
-              >
-                {loading ? "Verifying..." : "Verify OTP"}
-              </Button>
-
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full"
-                onClick={handleResendOTP}
-              >
-                Resend OTP
-              </Button>
-
-              <div className="text-center">
-                <button
-                  type="button"
-                  onClick={() => setStep("email")}
-                  className="text-sm text-[#0A70A1] hover:text-[#085a85] inline-flex items-center gap-2"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                  Change Email
-                </button>
-              </div>
-            </form>
-          )}
-
-          {step === "reset" && (
-            <form onSubmit={handleResetPassword} className="space-y-5">
-              <div>
-                <Label htmlFor="password">New Password</Label>
-                <div className="relative mt-1">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                  <Input
-                    id="password"
-                    type="password"
-                    required
-                    minLength={8}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter new password"
-                    className="pl-10"
-                  />
-                </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  Minimum 8 characters
-                </p>
-              </div>
-
-              <div>
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
-                <div className="relative mt-1">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                  <Input
-                    id="confirmPassword"
-                    type="password"
-                    required
-                    minLength={8}
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Confirm new password"
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-
-              <Button
-                type="submit"
-                className="w-full bg-[#0A70A1] hover:bg-[#085a85]"
-                size="lg"
-                disabled={loading}
-              >
-                {loading ? "Resetting Password..." : "Reset Password"}
-              </Button>
-            </form>
-          )}
-
           {step === "success" && (
-            <div className="text-center py-8">
-              <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
+            <div className="text-center py-6">
+              <div className="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="h-10 w-10 text-green-600" />
+              </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Password Reset Complete!
+                Email Sent Successfully
               </h3>
-              <p className="text-gray-600 mb-6">
-                You can now login with your new password
+              <p className="text-gray-600 mb-2">
+                We've sent a password reset link to:
               </p>
-              <Button 
-                onClick={() => navigate("/login")}
-                className="bg-[#0A70A1] hover:bg-[#085a85]"
-              >
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Go to Login
-              </Button>
+              <p className="font-semibold text-[#0A70A1] mb-6">
+                {email}
+              </p>
+              
+              <div className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-lg text-sm mb-6 text-left">
+                <p className="font-medium mb-2">Next Steps:</p>
+                <ol className="list-decimal list-inside space-y-1">
+                  <li>Check your email inbox (and spam folder)</li>
+                  <li>Click the reset link in the email</li>
+                  <li>Set your new password</li>
+                  <li>Log in with your new password</li>
+                </ol>
+              </div>
+              
+              <div className="space-y-3">
+                <Button 
+                  onClick={handleResend}
+                  variant="outline"
+                  className="w-full"
+                >
+                  Send Another Link
+                </Button>
+                <Button 
+                  onClick={() => navigate("/login")}
+                  className="w-full bg-[#0A70A1] hover:bg-[#085a85]"
+                >
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back to Login
+                </Button>
+              </div>
             </div>
           )}
         </CardContent>

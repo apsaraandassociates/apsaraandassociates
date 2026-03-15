@@ -12,6 +12,7 @@ import {
   Key,
   Settings,
   Link as LinkIcon,
+  RefreshCw,
 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -58,6 +59,7 @@ export function AdminDashboard() {
   const navigate = useNavigate();
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -297,6 +299,18 @@ export function AdminDashboard() {
     navigate(`/admin/client/${clientId}`);
   };
 
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await loadClients();
+      toast.success("Client list refreshed");
+    } catch (error) {
+      toast.error("Failed to refresh");
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   const filteredClients = clients.filter(
     (client) =>
       client.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -372,6 +386,16 @@ export function AdminDashboard() {
                 <Users className="h-5 w-5 text-[#0A70A1]" />
                 All Clients ({clients.length})
               </CardTitle>
+              <Button
+                onClick={handleRefresh}
+                disabled={refreshing}
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2"
+              >
+                <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+                <span className="hidden sm:inline">Refresh</span>
+              </Button>
             </div>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />

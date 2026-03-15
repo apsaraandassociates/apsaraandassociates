@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router";
-import { LogOut, FileText, Upload as UploadIcon, Download, Trash2, Calendar, User, Edit2, X, Check } from "lucide-react";
+import { LogOut, FileText, Upload as UploadIcon, Download, Trash2, Calendar, User, Edit2, X, Check, RefreshCw } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
@@ -49,6 +49,7 @@ export function ClientDashboard() {
   const [clientDocuments, setClientDocuments] = useState<Document[]>([]);
   const [caDocuments, setCaDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [documentToDelete, setDocumentToDelete] = useState<string | null>(null);
@@ -292,6 +293,21 @@ export function ClientDashboard() {
   const handleCancelRename = () => {
     setEditingDocument(null);
     setNewFileName("");
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await loadDocuments(user.id);
+        toast.success("Documents refreshed");
+      }
+    } catch (error) {
+      toast.error("Failed to refresh");
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -545,14 +561,26 @@ export function ClientDashboard() {
               </h1>
               <p className="text-sm text-gray-600">{profile?.email}</p>
             </div>
-            <Button
-              onClick={handleLogout}
-              variant="outline"
-              className="flex items-center gap-2"
-            >
-              <LogOut className="h-4 w-4" />
-              <span className="hidden sm:inline">Logout</span>
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={handleRefresh}
+                disabled={refreshing}
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2"
+              >
+                <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+                <span className="hidden sm:inline">Refresh</span>
+              </Button>
+              <Button
+                onClick={handleLogout}
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <LogOut className="h-4 w-4" />
+                <span className="hidden sm:inline">Logout</span>
+              </Button>
+            </div>
           </div>
         </div>
       </div>
