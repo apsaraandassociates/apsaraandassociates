@@ -57,16 +57,10 @@ export function Contact() {
       // Send email notification using Supabase Edge Function
       try {
         const adminEmail = import.meta.env.VITE_ADMIN_EMAIL || 'apsara@apsaraassociates.com';
-        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-        const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://xxzyqgdybpmuenhslyij.supabase.co';
+        const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh4enlxZ2R5YnBtdWVuaHNseWlqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0NjY0NTgsImV4cCI6MjA4OTA0MjQ1OH0.BThHbrggGevIH3Wkd--a1QuGueCIf7nz3Kk5dxVEsiw';
 
         console.log("📧 Calling Edge Function to send email to:", adminEmail);
-
-        if (!supabaseUrl || !supabaseAnonKey) {
-          console.error('❌ Missing Supabase environment variables');
-          toast.error('Email configuration error. Please contact administrator.');
-          throw new Error('Missing Supabase configuration');
-        }
 
         const edgeFunctionUrl = `${supabaseUrl}/functions/v1/send-contact-email`;
         
