@@ -61,6 +61,8 @@ export function Contact() {
         const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh4enlxZ2R5YnBtdWVuaHNseWlqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0NjY0NTgsImV4cCI6MjA4OTA0MjQ1OH0.BThHbrggGevIH3Wkd--a1QuGueCIf7nz3Kk5dxVEsiw';
 
         console.log("📧 Calling Edge Function to send email to:", adminEmail);
+        console.log("📧 Supabase URL:", supabaseUrl);
+        console.log("📧 Has Anon Key:", !!supabaseAnonKey);
 
         const edgeFunctionUrl = `${supabaseUrl}/functions/v1/send-contact-email`;
         
@@ -82,11 +84,17 @@ export function Contact() {
           })
         });
 
+        console.log("📧 Email Response Status:", emailResponse.status);
+        console.log("📧 Email Response OK:", emailResponse.ok);
+
         const emailResult = await emailResponse.json();
+        
+        console.log("📧 Email Result:", emailResult);
         
         if (!emailResponse.ok) {
           console.error('❌ Email sending failed:', emailResult);
-          toast.error(`Email not sent: ${emailResult.error || 'Unknown error'}`);
+          console.error('❌ Full error details:', JSON.stringify(emailResult, null, 2));
+          toast.warning(`Form saved but email failed: ${emailResult.error || 'Unknown error'}`);
         } else {
           console.log('✅ Email sent successfully:', emailResult);
           toast.success('Email notification sent!');
