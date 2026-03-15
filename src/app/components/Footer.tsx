@@ -1,6 +1,5 @@
 import { Link } from "react-router";
 import { Mail, Phone, MapPin } from "lucide-react";
-import caLogo from "../../imports/CA_LOGO.svg";
 
 export function Footer() {
   return (
@@ -9,17 +8,14 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           {/* About Section */}
           <div>
-            <div className="flex items-center gap-3 mb-4">
-              <img src={caLogo} alt="CA Logo" className="h-10" />
-              <div className="flex flex-col">
-                <span className="text-lg font-bold text-white">
-                  Apsara & Associates
-                </span>
-                <div className="w-full h-px bg-gray-600 my-0.5"></div>
-                <span className="text-[10px] text-gray-300 uppercase" style={{ letterSpacing: '0.15em' }}>
-                  Chartered Accountants
-                </span>
-              </div>
+            <div className="mb-4">
+              <span className="text-lg font-bold text-white">
+                Apsara & Associates
+              </span>
+              <div className="w-full h-px bg-gray-600 my-0.5"></div>
+              <span className="text-[10px] text-gray-300 uppercase" style={{ letterSpacing: '0.15em' }}>
+                Chartered Accountants
+              </span>
             </div>
             <p className="text-sm leading-relaxed">
               Trusted Financial Guidance with Professional Excellence. We provide high-quality services in taxation, accounting, audit, and financial advisory.
