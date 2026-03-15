@@ -173,14 +173,28 @@ export function About() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-white text-6xl font-bold bg-gradient-to-br from-[#0A70A1] to-[#085a85]">
-                    <div className="text-center">
-                      <div className="w-32 h-32 mx-auto mb-4 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                        <span className="text-7xl">AB</span>
-                      </div>
-                      <p className="text-sm text-blue-100">Photo: Upload from Admin Settings</p>
-                    </div>
-                  </div>
+                  <img
+                    src="/ca-photo.jpg"
+                    alt="CA Apsara Babu"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      // If image not found, show placeholder
+                      e.currentTarget.style.display = 'none';
+                      const parent = e.currentTarget.parentElement;
+                      if (parent) {
+                        parent.innerHTML = `
+                          <div class="w-full h-full flex items-center justify-center text-white text-6xl font-bold bg-gradient-to-br from-[#0A70A1] to-[#085a85]">
+                            <div class="text-center">
+                              <div class="w-32 h-32 mx-auto mb-4 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                                <span class="text-7xl">AB</span>
+                              </div>
+                              <p class="text-sm text-blue-100">Photo: Upload from Admin Settings</p>
+                            </div>
+                          </div>
+                        `;
+                      }
+                    }}
+                  />
                 )}
               </div>
               
